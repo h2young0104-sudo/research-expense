@@ -109,6 +109,24 @@ if not user_name.strip():
 
 # [STEP 1] 결제 정보
 st.subheader("1. 결제 정보 입력")
+
+# 이미지에서 추출한 과제 리스트 (계정번호 / 과제명 / 책임자)
+project_db = [
+    "2E33943 / 계산과학 및 AI 기반 에너지 저장 및 변환 소재 기술 개발 / 류승호",
+    "2E33944 / 설치가 용이한 고밀착부착형 태양전지 기술 개발 / 이필립",
+    "2E33951 / e-Chemical 제조 기술 / 이동기",
+    "2E33961 / Carbon to Liquid 공정 실증기술 개발(응용) / 이웅",
+    "2E33962 / (신규선임) 전기화학적 질소-탄소 결합 화합물 생산 기술 개발 / 김찬솔",
+    "2E33963 / (신규선임) 생성형 AI를 활용한 이산화탄소 동시 포집-전환 아민 합성 플랫폼 개발 / 김창수(선임)",
+    "2G13240 / 신개념 에너지기술 확보를 위한 실증 플랜트 구축 / 오형석",
+    "2I25710 / 이산화탄소 활용 청정 기초소재 합성반응의 대용량셀 평가 및 분석 / 오형석",
+    "2MRE760 / CO2 및 환원제 활용 온실가스 감축형 메탄올 합성기술 / 정광덕",
+    "2MRF640 / 48V급 발열 내구성을 갖는 투명한 금속 박막코팅 복합재 개발 / 김상우",
+    "2N47580 / 이산화탄소 환원 메탄올 생산을 위한 혁신적 촉매개발 / 정광덕",
+    "2V10563 / 플라스틱 전기개질 기술개발 / 이동기",
+    "2V10792 / Air to SAF 개발 계획 / 하정명"
+]
+
 col1, col2 = st.columns(2)
 with col1:
     payment_method = st.radio(
@@ -119,17 +137,42 @@ with col1:
     )
 
 with col2:
-    if payment_method == "법인카드":
-        available_projects = ["법인공용-운영비", "법인공용-LINC사업"]
-    elif payment_method == "연구비카드":
-        available_projects = ["연구재단-A과제", "산업부-B과제 (Microenvironment)", "환경부-C과제 (CO2)"]
-    else: 
-        available_projects = ["모든 과제 선택 가능", "연구재단-A과제", "산업부-B과제", "환경부-C과제"]
-    project = st.selectbox(f"사용할 과제 계정", ["선택하세요"] + available_projects)
+    # 법인카드인 경우 이미지의 리스트 사용, 그 외의 경우도 동일 리스트 사용(필요시 분기 가능)
+    # 편의상 모든 결제 수단에서 해당 과제 리스트를 보여주되, 원하시면 분기 처리가 가능합니다.
+    available_projects = project_db
+    
+    # 선택 박스 (마지막에 '그 외 기타' 추가)
+    project_selection = st.selectbox(f"사용할 과제 계정", ["선택하세요"] + available_projects + ["그 외 기타"])
 
-if project == "선택하세요":
+# 과제 선택 로직 처리
+final_project_name = ""
+
+if project_selection == "선택하세요":
     st.info("👈 과제를 선택해주세요.")
     st.stop()
+
+elif project_selection == "그 외 기타":
+    # 직접 입력 창 활성화
+    manual_input = st.text_input("과제명 직접 입력 (⚠️ 숫자와 영문만 입력 가능)", placeholder="예: 2X00000 New Project Name")
+    
+    if manual_input:
+        # 정규표현식: 영문(a-z, A-Z), 숫자(0-9), 공백(\s), 특수문자 일부 허용 등을 원하면 수정 가능
+        # 여기서는 요청하신 대로 '숫자와 영문' 위주로 체크 (공백 포함 허용)
+        # ^[a-zA-Z0-9\s]+$ : 처음부터 끝까지 영문, 숫자, 공백만 있어야 함
+        if not re.match(r'^[a-zA-Z0-9\s]+$', manual_input):
+            st.error("🚫 한글은 입력할 수 없습니다. 숫자와 영문만 입력해주세요.")
+            st.stop()
+        else:
+            final_project_name = f"[직접입력] {manual_input}"
+    else:
+        st.info("과제 정보를 입력해주세요.")
+        st.stop()
+else:
+    # 리스트에서 선택한 경우
+    final_project_name = project_selection
+
+# (메일 전송 시 사용할 변수명을 project로 통일)
+project = final_project_name
 
 # [STEP 2] 고액 결제 확인
 st.divider()
