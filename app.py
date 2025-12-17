@@ -111,8 +111,8 @@ if not user_name.strip():
 # [STEP 1] 결제 정보
 st.subheader("1. 결제 정보 입력")
 
-# 이미지에서 추출한 과제 리스트 (계정번호 / 과제명 / 책임자)
-project_db = [
+# 1) 법인카드용 리스트 (기존 코드 유지)
+corp_projects = [
     "2E33943 / 계산과학 및 AI 기반 에너지 저장 및 변환 소재 기술 개발 / 류승호",
     "2E33944 / 설치가 용이한 고밀착부착형 태양전지 기술 개발 / 이필립",
     "2E33951 / e-Chemical 제조 기술 / 이동기",
@@ -128,6 +128,23 @@ project_db = [
     "2V10792 / Air to SAF 개발 계획 / 하정명"
 ]
 
+# 2) 연구비카드용 리스트 (새로 업로드된 이미지 내용 반영)
+research_projects = [
+    "2N47780 / 전기화학적 환원 반응 활용 금속 산화물 재활용 기술 개발 / 김찬솔",
+    "2N78490 / 고농도 C2+ 액체 산물 생산용 *H/*CO 중간체 제어 나노촉매 및 전해 시스템 개발 / 원다혜",
+    "2N78700 / 전기화학적 CO2 전환 에틸렌 생산 핵심 기술 개발 및 실증 연구 / 오형석",
+    "2N78970 / 공기 중 이산화탄소 동시 포집-전환 원천기술개발 / 이현주",
+    "2N79010 / 카본 네거티브 소재-응용 넥서스 / 오형석",
+    "2N79060 / 목질계 바이오매스의 통합 e-Biorefinery 기술개발 / 이동기",
+    "2N79510 / 소비자 가치 및 수용성이 고려된 CO2 전환 에탄올 생산 촉매 소재 및 시스템 개발 / 이동기",
+    "2N79860 / 직접 공기 포집 및 전기화학적 전환을 통한 유용화합물 생산 기술 개발 / 원다혜",
+    "2N80000 / 능동학습법을 활용한 CO2 동시 포집-전환 메탄올 저온 제조기술개발 / 이웅",
+    "2N80390 / 청정수소 생산을 위한 요소 재순환 소재-응용 넥서스 / 오형석",
+    "2N82060 / 기술 수출을 위한 배출원 맞춤형 저비용 CO2 포집 기술개발 / 이웅",
+    "2N82360 / 전기화학 전환(e-플라스틱 원료(CO/PO)) / 오형석",
+    "2N82910 / 초임계 환경 전기화학적 CO2 전환 환원 전극 소재 및 반응기 개발 / 오형석"
+]
+
 col1, col2 = st.columns(2)
 with col1:
     payment_method = st.radio(
@@ -138,9 +155,14 @@ with col1:
     )
 
 with col2:
-    # 법인카드인 경우 이미지의 리스트 사용, 그 외의 경우도 동일 리스트 사용(필요시 분기 가능)
-    # 편의상 모든 결제 수단에서 해당 과제 리스트를 보여주되, 원하시면 분기 처리가 가능합니다.
-    available_projects = project_db
+    # 결제 수단에 따른 과제 리스트 분기 처리
+    if payment_method == "법인카드":
+        available_projects = corp_projects
+    elif payment_method == "연구비카드":
+        available_projects = research_projects
+    else: # 세금계산서
+        # 법인카드 + 연구비카드 목록 합치기
+        available_projects = corp_projects + research_projects
     
     # 선택 박스 (마지막에 '그 외 기타' 추가)
     project_selection = st.selectbox(f"사용할 과제 계정", ["선택하세요"] + available_projects + ["그 외 기타"])
@@ -157,9 +179,7 @@ elif project_selection == "그 외 기타":
     manual_input = st.text_input("과제명 직접 입력 (⚠️ 숫자와 영문만 입력 가능)", placeholder="예: 2X00000 New Project Name")
     
     if manual_input:
-        # 정규표현식: 영문(a-z, A-Z), 숫자(0-9), 공백(\s), 특수문자 일부 허용 등을 원하면 수정 가능
-        # 여기서는 요청하신 대로 '숫자와 영문' 위주로 체크 (공백 포함 허용)
-        # ^[a-zA-Z0-9\s]+$ : 처음부터 끝까지 영문, 숫자, 공백만 있어야 함
+        # 정규표현식: 영문, 숫자, 공백만 허용 (한글 불가)
         if not re.match(r'^[a-zA-Z0-9\s]+$', manual_input):
             st.error("🚫 한글은 입력할 수 없습니다. 숫자와 영문만 입력해주세요.")
             st.stop()
