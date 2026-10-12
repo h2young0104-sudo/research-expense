@@ -290,7 +290,7 @@ else:
     elif category == "학회/세미나 등록비":
         c_a, c_b, c_c = st.columns(3)
         uploaded_files['conf_reg'] = c_a.file_uploader("3. 학회등록증", type=file_types, key=f"conf_reg_{fid}")
-        uploaded_files['conf_info'] = c_b.file_uploader("4. 일시/장소", type=file_types, key=f"conf_info_{fid}")
+        uploaded_files['conf_info'] = c_b.file_uploader("4. 일시/장소 확인 가능 서류(학회 사이트 캡쳐 혹은 공문 등)", type=file_types, key=f"conf_info_{fid}")
         uploaded_files['conf_fee'] = c_c.file_uploader("5. 등록비 기준표", type=file_types, key=f"conf_fee_{fid}")
         if uploaded_files.get('conf_reg') and uploaded_files.get('conf_info') and uploaded_files.get('conf_fee'): extra_requirements_met = True
     elif category == "인쇄비 (포스터/책)":
