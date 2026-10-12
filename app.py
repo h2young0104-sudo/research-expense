@@ -312,7 +312,7 @@ else:
     elif category == "연구실 운영비 (식대/다과)":
         is_under_100k = st.checkbox("10만 원 미만입니까?", value=False, key=f"under_100k_{fid}")
         if not is_under_100k:
-            st.error("🚫 10만 원 미만만 청구 가능")
+            st.error("🚫 10만 원 미만만 청구 가능/산업부(M/MR)과제 불가/제조 음료 불가")
             extra_requirements_met = False
         else:
             buy_route = st.radio("구매 경로", ["인터넷 주문", "오프라인 매장"], key=f"buy_route_{fid}")
