@@ -309,10 +309,10 @@ else:
         else:
             uploaded_files['figure_file'] = st.file_uploader("3. 그림 파일", type=file_types, key=f"fig_{fid}")
             if uploaded_files.get('figure_file'): extra_requirements_met = True
-    elif category == "연구실 운영비 (식대/다과)":
+    elif category == "연구실 운영비 (다과 및 음료)":
         is_under_100k = st.checkbox("10만 원 미만입니까?", value=False, key=f"under_100k_{fid}")
         if not is_under_100k:
-            st.error("🚫 10만 원 미만만 청구 가능")
+            st.error("🚫 10만 원 미만만 청구 가능/산업부(M, MR) 과제 처리 불가/제조 음료 처리 불가")
             extra_requirements_met = False
         else:
             buy_route = st.radio("구매 경로", ["인터넷 주문", "오프라인 매장"], key=f"buy_route_{fid}")
